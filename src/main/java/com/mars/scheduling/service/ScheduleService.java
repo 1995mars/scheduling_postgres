@@ -21,8 +21,6 @@ public class ScheduleService {
     private ScheduleRepository scheduleRepository;
 
     public void addSchedule(Schedule schedule) throws SchedulerException {
-        System.out.println(schedule);
-        System.out.println(schedule.getCronExpression());
         JobDetail jobDetail = JobBuilder.newJob(ScheduleJob.class)
                 .withIdentity(schedule.getId().toString())
                 .build();
@@ -47,7 +45,9 @@ public class ScheduleService {
         if (scheduler.checkExists(jobKey) && scheduler.checkExists(triggerKey)) {
             scheduler.deleteJob(jobKey);
             addSchedule(schedule);
-        } else {
+        } else if (scheduleRepository.findById(schedule.getId()).get() != null){
+            scheduleRepository.save(schedule);
+        }else  {
             throw new SchedulerException("Schedule does not exist");
         }
     }
